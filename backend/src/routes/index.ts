@@ -51,6 +51,7 @@ import storageRouter from './storage.routes.js';
 import passkeyRouter from './passkey.routes.js';
 import webhooksRouter from './webhooks.js';
 import canvasRouter from './canvas.routes.js';
+import subscriptionsRouter from './subscriptions.routes.js';
 
 const router: ReturnType<typeof Router> = Router();
 
@@ -102,6 +103,7 @@ router.use('/policy', policyRouter);
 router.use('/storage', storageRouter);
 router.use('/passkey', passkeyRouter);
 router.use('/relayer', relayerRouter);
+router.use('/subscriptions', subscriptionsRouter);
 router.use('/user', userRouter);
 router.use('/metrics', metricsRouter);
 router.use('/dependencies', dependenciesRouter);
