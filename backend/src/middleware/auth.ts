@@ -1,5 +1,3 @@
-// @ts-nocheck
-// TEMP: Requires Prisma User model + Express Request.user role alignment. Follow-up issue.
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { ApiResponse } from '../utils/response.js';
@@ -24,25 +22,23 @@ export const authenticateToken = async (req: AuthRequest, res: Response, next: N
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
 
-    // Get user from database to ensure they still exist and are active
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
+    // Get student from database to ensure they still exist
+    const student = await (prisma as any).student.findUnique({
+      where: { id: decoded.userId || decoded.id },
       select: {
         id: true,
         email: true,
-        role: true,
-        isActive: true,
       },
     });
 
-    if (!user || !user.isActive) {
+    if (!student) {
       return res.status(401).json(ApiResponse.error('Invalid or inactive user'));
     }
 
     req.user = {
-      id: user.id,
-      email: user.email,
-      role: user.role,
+      id: student.id,
+      email: student.email,
+      role: decoded.role || 'student',
     };
 
     next();
