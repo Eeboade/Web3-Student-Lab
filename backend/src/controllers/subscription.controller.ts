@@ -1,10 +1,10 @@
-// @ts-nocheck
-// TEMP: Depends on missing Prisma subscription models and response.asyncHandler export. Follow-up issue.
 import { NextFunction, Request, Response } from 'express';
 import { subscriptionService } from '../services/subscription.service.js';
 import logger from '../utils/logger.js';
-import { ApiResponse, asyncHandler } from '../utils/response.js';
+import { ApiResponse } from '../utils/response.js';
+import { asyncHandler } from '../middleware/errorHandler.js';
 import { WebSocketServer } from '../websocket/WebSocketServer.js';
+import { redisConnection } from '../utils/redis.js';
 
 export const subscriptionController = {
   // Get all subscription plans

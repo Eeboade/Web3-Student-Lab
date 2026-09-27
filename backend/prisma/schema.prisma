@@ -39,6 +39,8 @@ model Student {
   ideas            Idea[]
   votes            Vote[]
   passkeyCredentials PasskeyCredential[]
+  hashSimulations  HashSimulation[]
+  subscriptions    Subscription[]
 
   @@index([workspaceId, email])
   @@index([firstName, lastName])
@@ -558,4 +560,55 @@ model PayoutTransaction {
 
   @@index([anchorId, status], map: "idx_payout_anchor_status")
   @@map("v2_payout_transactions")
+}
+
+model SubscriptionPlan {
+  id                String         @id @default(cuid())
+  name              String
+  description       String?
+  priceXLM          Float
+  billingPeriodDays Int            @default(30)
+  features          Json?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  subscriptions     Subscription[]
+
+  @@map("subscription_plans")
+}
+
+model Subscription {
+  id                 String           @id @default(cuid())
+  studentId          String
+  planId             String
+  status             String           @default("active") // active, cancelled, expired
+  currentPeriodStart DateTime         @default(now())
+  currentPeriodEnd   DateTime
+  cancelAtPeriodEnd  Boolean          @default(false)
+  txHash             String?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  student            Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  plan               SubscriptionPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  payments           PaymentRecord[]
+
+  @@index([studentId])
+  @@index([planId])
+  @@map("subscriptions")
+}
+
+model PaymentRecord {
+  id             String       @id @default(cuid())
+  subscriptionId String
+  amountXLM      Float
+  txHash         String?
+  status         String       @default("completed")
+  paidAt         DateTime     @default(now())
+  createdAt      DateTime     @default(now())
+
+  subscription   Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+
+  @@index([subscriptionId])
+  @@map("payment_records")
 }
